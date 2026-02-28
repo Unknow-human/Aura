@@ -1,69 +1,61 @@
-// CONFIGURATION : Remplacez par vos propres liens
 const CONFIG = {
-    // 1. Publiez votre Google Sheet sur le web au format CSV et mettez l'ID ici
-    SHEET_ID: 'e/2PACX-1vSMwc9l4sL1A_peOCszJYVk8uUwxWdeirVR9HHYMLrAYVIt_HtADnZ6RelyYwwCecg7f7EcTbjlVfxQ', 
-    // 2. URL de votre Google Form pré-rempli
-    FORM_BASE_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSd7pDwU5p3AVrkcsIfypPMg314kb7lZnyZZ4x3NAu6gPLhIKg/viewform?usp=pp_url&entry.123323335=XXXXX&entry.301623353=XXXXXX',
-    // 3. IDs des entrées du formulaire (à trouver via "Obtenir le lien pré-rempli")
-    FORM_ENTRY_ID_PRODUIT: 'entry.123323335',
-    FORM_ENTRY_ID_PRIX: 'entry.301623353',
-    // 4. Lien de paiement direct (ex: Paystack, Flutterwave ou lien Wave)
-    PAYMENT_LINK: 'https://wa.me/+2290162330710?text=Je%20souhaite%20payer%20mon%20commande'
+    // IMPORTANT : Remplacez par votre ID de feuille publiée
+    SHEET_ID: '1yVEYlwERA9_EdcOz7cXSJ0uxDDmvvxEe4jGGJkVCmCQ', 
+    FORM_BASE_URL: 'https://docs.google.com/forms/d/e/1WlHJMFNfPVAf6US3wmnXZhtTvr3ip0oy9kCUjVktY2k/viewform',
+    // Exemple de lien de paiement via une plateforme comme Paystack ou un numéro Wave
+    PAYMENT_LINK: 'https://wa.me/+2290162330710?text=Je-souhaite-payer-une-commande' 
 };
 
-const productGrid = document.getElementById('product-grid');
-
-/**
- * Récupère les données du Google Sheet (CSV Public)
- */
 async function fetchProducts() {
+    const grid = document.getElementById('product-grid');
+    
+    // Test : Si l'ID n'est pas configuré, afficher un message d'aide
+    if (CONFIG.SHEET_ID === 'VOTRE_ID_GOOGLE_SHEET') {
+        grid.innerHTML = `
+            <div class="col-span-full bg-yellow-100 p-4 rounded text-yellow-800">
+                <strong>Mode Test :</strong> Ajoutez l'ID de votre Google Sheet dans <code>app.js</code> pour voir vos produits.
+            </div>`;
+        return;
+    }
+
     const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/export?format=csv`;
     
     try {
         const response = await fetch(url);
+        if (!response.ok) throw new Error('Erreur réseau');
+        
         const data = await response.text();
-        const rows = data.split('\n').slice(1); // On saute l'en-tête
-
-        productGrid.innerHTML = ''; // Vide le loader
+        const rows = data.split('\n').slice(1);
+        grid.innerHTML = ''; 
 
         rows.forEach(row => {
-            const columns = row.split(','); // Format : Nom,ImageURL,Prix,Description
-            if (columns.length >= 3) {
-                const [nom, image, prix, desc] = columns;
-                renderProduct(nom.trim(), image.trim(), prix.trim(), desc.trim());
+            const cols = row.split(','); 
+            if (cols.length >= 3) {
+                renderCard(cols[0], cols[1], cols[2], cols[3] || "");
             }
         });
-    } catch (error) {
-        console.error("Erreur de chargement:", error);
-        productGrid.innerHTML = `<p class="text-red-500 text-center col-span-full">Impossible de charger les produits. Vérifiez la configuration du Google Sheet.</p>`;
+    } catch (err) {
+        grid.innerHTML = `<p class="text-red-500">Erreur lors de la récupération des données.</p>`;
     }
 }
 
-/**
- * Affiche un produit dans la grille
- */
-function renderProduct(nom, image, prix, desc) {
-    // Création du lien Google Form pré-rempli
-    const orderUrl = `${CONFIG.FORM_BASE_URL}?${CONFIG.FORM_ENTRY_ID_PRODUIT}=${encodeURIComponent(nom)}&${CONFIG.FORM_ENTRY_ID_PRIX}=${encodeURIComponent(prix)}`;
-
+function renderCard(nom, img, prix, desc) {
+    const grid = document.getElementById('product-grid');
     const card = `
-        <div class="product-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-            <img src="${image}" alt="${nom}" class="w-full h-48 object-cover bg-gray-200">
-            <div class="p-6 flex-grow">
-                <h4 class="text-xl font-bold mb-2">${nom}</h4>
-                <p class="text-gray-600 text-sm mb-4">${desc}</p>
-                <div class="text-2xl font-bold text-blue-900 mb-4">${prix} <small class="text-sm font-medium">FCFA</small></div>
-            </div>
-            <div class="p-6 pt-0 flex gap-2">
-                <a href="${orderUrl}" target="_blank" class="flex-1 text-center bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition">Commander</a>
-                <a href="${CONFIG.PAYMENT_LINK}" target="_blank" class="px-3 flex items-center bg-yellow-400 rounded hover:bg-yellow-500 transition" title="Payer maintenant">
-                    <i class="fas fa-credit-card text-blue-900"></i>
-                </a>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 hover:shadow-xl transition">
+            <img src="${img}" class="w-full h-48 object-cover" alt="${nom}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Indisponible'">
+            <div class="p-4">
+                <h4 class="font-bold text-xl mb-1">${nom}</h4>
+                <p class="text-gray-500 text-sm mb-3">${desc}</p>
+                <div class="text-blue-700 font-bold text-lg mb-4">${prix} FCFA</div>
+                <div class="flex gap-2">
+                    <a href="${CONFIG.FORM_BASE_URL}" class="flex-1 bg-blue-600 text-white text-center py-2 rounded font-bold">Commander</a>
+                    <a href="${CONFIG.PAYMENT_LINK}" class="bg-yellow-400 px-3 py-2 rounded"><i class="fas fa-wallet"></i></a>
+                </div>
             </div>
         </div>
     `;
-    productGrid.innerHTML += card;
+    grid.innerHTML += card;
 }
 
-// Lancement
 document.addEventListener('DOMContentLoaded', fetchProducts);
