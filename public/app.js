@@ -1,6 +1,6 @@
 const CONFIG = {
     // IMPORTANT : Remplacez par votre ID de feuille publiée
-    SHEET_ID: '1yVEYlwERA9_EdcOz7cXSJ0uxDDmvvxEe4jGGJkVCmCQ', 
+    SHEET_ID: '2PACX-1vSMwc9l4sL1A_peOCszJYVk8uUwxWdeirVR9HHYMLrAYVIt_HtADnZ6RelyYwwCecg7f7EcTbjlVfxQ', 
     FORM_BASE_URL: 'https://docs.google.com/forms/d/e/1WlHJMFNfPVAf6US3wmnXZhtTvr3ip0oy9kCUjVktY2k/viewform',
     // Exemple de lien de paiement via une plateforme comme Paystack ou un numéro Wave
     PAYMENT_LINK: 'https://wa.me/+2290162330710?text=Je-souhaite-payer-une-commande' 
