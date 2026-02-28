@@ -1,12 +1,20 @@
-html {
-    scroll-behavior: smooth;
-}
+body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
 
 .product-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .product-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-12px);
+}
+
+.image-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
