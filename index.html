@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electro-Innov | Automatisation & Électronique Afrique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white p-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight">ELECTRO<span class="text-yellow-400">-INNOV</span></h1>
+            <div class="space-x-6 hidden md:flex">
+                <a href="#projets" class="hover:text-yellow-400">Projets</a>
+                <a href="#stats" class="hover:text-yellow-400">Statistiques</a>
+                <a href="#contact" class="hover:text-yellow-400">Contact</a>
+            </div>
+            <a href="https://wa.me/221XXXXXXXXX" class="bg-green-600 px-4 py-2 rounded-full font-bold hover:bg-green-700 transition">
+                <i class="fab fa-whatsapp mr-2"></i>Besoin d'aide ?
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-blue-800 text-white py-20 px-6 text-center bg-cover bg-center" style="background-image: linear-gradient(rgba(30, 58, 138, 0.8), rgba(30, 58, 138, 0.8)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+        <h2 class="text-4xl md:text-6xl font-extrabold mb-4">L'automatisation au service de l'Afrique</h2>
+        <p class="text-xl mb-8 max-w-2xl mx-auto">Conception de solutions électroniques sur mesure pour l'agriculture, l'industrie et l'habitat.</p>
+        <a href="#projets" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition shadow-xl">Voir les Produits</a>
+    </header>
+
+    <!-- Galerie de Produits Dynamique -->
+    <section id="projets" class="container mx-auto py-16 px-4">
+        <div class="flex flex-col items-center mb-12">
+            <h3 class="text-3xl font-bold border-b-4 border-yellow-400 pb-2">Nos Solutions & Produits</h3>
+            <p class="text-gray-600 mt-4">Matériel certifié et adapté aux conditions locales.</p>
+        </div>
+        
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Les produits seront injectés ici par app.js -->
+            <div class="text-center col-span-full py-10">
+                <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
+                <p>Chargement des solutions en cours...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistiques / Dashboard -->
+    <section id="stats" class="bg-gray-100 py-16">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12">Impact & Statistiques</h3>
+            <div class="bg-white p-2 rounded-xl shadow-2xl overflow-hidden h-[500px]">
+                <!-- Intégration Looker Studio -->
+                <iframe src="https://lookerstudio.google.com/embed/reporting/VOTRE_ID_REPORTING" 
+                        class="w-full h-full border-0" 
+                        allowfullscreen 
+                        sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pied de page -->
+    <footer id="contact" class="bg-blue-950 text-white py-12 px-4">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h4 class="text-xl font-bold mb-4">ELECTRO-INNOV</h4>
+                <p class="text-gray-400">Expertise en conception de PCB, programmation PLC et installation de systèmes automatisés.</p>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Liens Utiles</h4>
+                <ul class="text-gray-400 space-y-2">
+                    <li><a href="#" class="hover:text-white">Maintenance</a></li>
+                    <li><a href="#" class="hover:text-white">Formations</a></li>
+                    <li><a href="#" class="hover:text-white">Conception sur mesure</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold mb-4">Paiement sécurisé</h4>
+                <div class="flex gap-4 items-center opacity-70">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5968/5968144.png" class="h-8" title="Wave">
+                    <img src="https://logowik.com/content/uploads/images/orange-money3503.jpg" class="h-8" title="Orange Money">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1200px-PayPal.svg.png" class="h-8" title="PayPal">
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-12 border-t border-blue-800 pt-6 text-gray-500 text-sm">
+            &copy; 2024 Electro-Innov - Développé pour l'émergence technologique en Afrique.
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
