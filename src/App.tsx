@@ -40,12 +40,12 @@ const Navbar = () => {
     <nav className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
       isScrolled || isMenuOpen ? 'bg-white/95 backdrop-blur-md border-b border-slate-100 py-3' : 'bg-transparent py-6'
     }`}>
-      <div className="container mx-auto px-6 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-            <Bolt size={20} />
+      <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="bg-blue-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+            <Bolt size={18} />
           </div>
-          <div className="font-black text-xl tracking-tighter text-slate-900">TECHNO-ENERGIE</div>
+          <div className="font-black text-lg sm:text-xl tracking-tighter text-slate-900">TECHNO-ENERGIE</div>
         </div>
         
         <div className="hidden md:flex items-center gap-8">
@@ -148,7 +148,7 @@ const Modal = ({ product, onClose }: ModalProps) => {
   if (!product) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-6">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -158,17 +158,17 @@ const Modal = ({ product, onClose }: ModalProps) => {
       />
       <motion.div 
         layoutId={`card-${product.id}`}
-        className="bg-white w-full max-w-4xl rounded-[2.5rem] relative z-10 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="bg-white w-full max-w-4xl rounded-[1.5rem] sm:rounded-[2.5rem] relative z-10 overflow-hidden shadow-2xl max-h-[95vh] overflow-y-auto"
       >
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 w-12 h-12 bg-white/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-white transition shadow-lg z-20"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-white/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-white transition shadow-lg z-20"
         >
-          <X className="text-slate-900" />
+          <X className="text-slate-900" size={20} />
         </button>
 
         <div className="grid md:grid-cols-2">
-          <div className="h-full relative bg-slate-100">
+          <div className="h-48 sm:h-64 md:h-full relative bg-slate-100">
             <div className="flex flex-col h-full">
               <div className={product.poster ? 'h-1/2' : 'h-full'}>
                 <img 
@@ -344,9 +344,9 @@ const SmartHomeInteractive = () => {
   ];
 
   return (
-    <div className="bg-white/5 rounded-[3rem] p-8 md:p-12 border border-white/10 relative overflow-hidden h-full flex flex-col">
+    <div className="bg-white/5 rounded-[1.5rem] sm:rounded-[3rem] p-6 sm:p-12 border border-white/10 relative overflow-hidden h-full flex flex-col">
       <div className="relative z-10 flex-1">
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-6 sm:mb-8">
           {steps.map((_, i) => (
             <button 
               key={i}
@@ -367,8 +367,8 @@ const SmartHomeInteractive = () => {
             <div className={`w-16 h-16 rounded-2xl ${steps[activeStep].color} flex items-center justify-center mb-6 border border-white/10 shadow-xl`}>
               {React.cloneElement(steps[activeStep].icon as React.ReactElement, { size: 32 })}
             </div>
-            <h3 className="text-3xl font-black text-white leading-tight">{steps[activeStep].title}</h3>
-            <p className="text-slate-400 text-lg leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">{steps[activeStep].title}</h3>
+            <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
               {steps[activeStep].desc}
             </p>
             
@@ -450,28 +450,28 @@ const AdminDashboard = ({ products, onUpdate, onClose }: { products: Product[], 
   };
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4">
       <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-xl" onClick={onClose} />
-      <div className="bg-white w-full max-w-5xl rounded-[2.5rem] relative z-10 overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-        <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+      <div className="bg-white w-full max-w-5xl rounded-[1.5rem] sm:rounded-[2.5rem] relative z-10 overflow-hidden shadow-2xl max-h-[95vh] flex flex-col">
+        <div className="p-4 sm:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <div>
-            <h2 className="text-2xl font-black text-slate-900">Gestion du Catalogue</h2>
-            <p className="text-slate-500 text-sm font-medium">Ajoutez ou modifiez vos produits facilement</p>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">Gestion du Catalogue</h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-medium">Ajoutez ou modifiez vos produits facilement</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-2 sm:gap-4">
             <button 
               onClick={() => setEditingProduct({ title: '', shortDescription: '', fullDescription: '', type: 'domotique', features: [], benefits: [] })}
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white p-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition"
             >
-              <Plus size={20} /> Nouveau Produit
+              <Plus size={20} /> <span className="hidden sm:inline">Nouveau</span>
             </button>
-            <button onClick={onClose} className="p-3 hover:bg-slate-200 rounded-xl transition">
-              <X size={24} />
+            <button onClick={onClose} className="p-2 sm:p-3 hover:bg-slate-200 rounded-lg sm:rounded-xl transition">
+              <X size={20} sm:size={24} />
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
           {editingProduct ? (
             <form onSubmit={handleSave} className="space-y-8 max-w-3xl mx-auto">
               <div className="grid md:grid-cols-2 gap-6">
@@ -627,45 +627,45 @@ export default function App() {
       <Navbar />
 
       {/* HERO SECTION */}
-      <header className="relative pt-32 pb-20 md:pt-56 md:pb-40 px-6 overflow-hidden">
+      <header className="relative pt-24 pb-16 md:pt-56 md:pb-40 px-4 sm:px-6 overflow-hidden">
         <div className="absolute top-0 right-0 -z-10 w-1/2 h-full bg-gradient-to-l from-blue-50/50 to-transparent" />
-        <div className="container mx-auto grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
+        <div className="container mx-auto grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-6">
-              <Zap size={14} /> Innovation & Sécurité au Bénin
+            <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest mb-4 sm:mb-6">
+              <Zap size={12} sm:size={14} /> Innovation & Sécurité au Bénin
             </span>
-            <h1 className="text-5xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tighter text-slate-900">
+            <h1 className="text-4xl sm:text-5xl md:text-8xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tighter text-slate-900">
               Vivez dans le <span className="text-blue-600 italic">confort</span> du futur.
             </h1>
-            <p className="text-xl text-slate-500 mb-10 leading-relaxed max-w-xl font-medium">
+            <p className="text-lg sm:text-xl text-slate-500 mb-8 sm:mb-10 leading-relaxed max-w-xl font-medium">
               Agboton Fabio transforme votre quotidien. Nous installons des systèmes intelligents et concevons vos futurs produits électroniques. 
               <span className="text-slate-900 font-bold block mt-2">Simple, fiable et économique.</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <a href="#catalogue" className="bg-slate-900 text-white px-8 md:px-10 py-4 md:py-5 rounded-2xl font-bold hover:bg-blue-600 transition shadow-2xl shadow-slate-200 flex items-center justify-center gap-2">
+              <a href="#catalogue" className="bg-slate-900 text-white px-6 sm:px-10 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-bold hover:bg-blue-600 transition shadow-2xl shadow-slate-200 flex items-center justify-center gap-2">
                 Découvrir nos solutions <ArrowRight size={20} />
               </a>
-              <a href={CONTACT_WHATSAPP} className="bg-white text-slate-900 border border-slate-200 px-8 md:px-10 py-4 md:py-5 rounded-2xl font-bold hover:bg-slate-50 transition flex items-center justify-center">
+              <a href={CONTACT_WHATSAPP} className="bg-white text-slate-900 border border-slate-200 px-6 sm:px-10 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-bold hover:bg-slate-50 transition flex items-center justify-center">
                 Parler à un expert
               </a>
             </div>
           </motion.div>
           
           <motion.div 
-            className="relative"
+            className="relative mt-10 lg:mt-0"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
           >
-            <div className="absolute -inset-4 bg-blue-100 rounded-[3rem] blur-3xl opacity-30 animate-pulse" />
-            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white">
+            <div className="absolute -inset-2 sm:-inset-4 bg-blue-100 rounded-[2rem] sm:rounded-[3rem] blur-2xl sm:blur-3xl opacity-30 animate-pulse" />
+            <div className="relative rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl border-4 sm:border-8 border-white">
               <img 
                 src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000" 
-                className="w-full h-[500px] object-cover" 
+                className="w-full h-[300px] sm:h-[500px] object-cover" 
                 alt="Techno-Energie Lab"
                 referrerPolicy="no-referrer"
               />
@@ -686,14 +686,14 @@ export default function App() {
       </header>
 
       {/* DOMOTIQUE EXPLAINER */}
-      <section id="domotique" className="py-32 bg-slate-900 text-white overflow-hidden relative">
+      <section id="domotique" className="py-20 sm:py-32 bg-slate-900 text-white overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500 rounded-full blur-[120px]" />
+          <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500 rounded-full blur-[80px] sm:blur-[120px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-indigo-500 rounded-full blur-[80px] sm:blur-[120px]" />
         </div>
 
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-20 items-stretch">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-20 items-stretch">
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -704,12 +704,12 @@ export default function App() {
             </motion.div>
 
             <div className="flex flex-col justify-center">
-              <h2 className="text-4xl md:text-5xl font-black mb-10 leading-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-8 sm:mb-10 leading-tight">
                 C'est quoi la Domotique ? <br/>
                 <span className="text-blue-400 italic">Simplifier votre vie.</span>
               </h2>
               
-              <div className="space-y-10">
+              <div className="space-y-8 sm:space-y-10">
                 {[
                   { icon: <Lightbulb />, title: "Économie d'énergie", desc: "Vos lumières et climatisations s'éteignent seules quand vous quittez une pièce." },
                   { icon: <ShieldCheck />, title: "Sécurité Totale", desc: "Recevez une alerte sur votre téléphone en cas d'intrusion ou de fuite d'eau." },
@@ -717,18 +717,18 @@ export default function App() {
                 ].map((item, i) => (
                   <motion.div 
                     key={i} 
-                    className="flex gap-6"
+                    className="flex gap-4 sm:gap-6"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <div className="bg-white/5 p-4 rounded-2xl text-blue-400 shrink-0 border border-white/10">
-                      {React.cloneElement(item.icon as React.ReactElement, { size: 28 })}
+                    <div className="bg-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl text-blue-400 shrink-0 border border-white/10 h-fit">
+                      {React.cloneElement(item.icon as React.ReactElement, { size: 24 })}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-2 text-white">{item.title}</h3>
-                      <p className="text-slate-400 leading-relaxed font-medium">{item.desc}</p>
+                      <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-white">{item.title}</h3>
+                      <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -739,15 +739,15 @@ export default function App() {
       </section>
 
       {/* SOLUTIONS GRID */}
-      <section id="solutions" className="py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <span className="text-blue-600 font-black uppercase tracking-[0.3em] text-xs mb-4 block">Nos Domaines d'Intervention</span>
-            <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter">Une expertise <span className="text-blue-600">multidisciplinaire</span>.</h2>
-            <p className="text-slate-500 text-lg font-medium">De la maison intelligente à l'industrie lourde, nous apportons des solutions électroniques de pointe.</p>
+      <section id="solutions" className="py-20 sm:py-32 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+            <span className="text-blue-600 font-black uppercase tracking-[0.3em] text-[10px] sm:text-xs mb-4 block">Nos Domaines d'Intervention</span>
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-6 tracking-tighter">Une expertise <span className="text-blue-600">multidisciplinaire</span>.</h2>
+            <p className="text-slate-500 text-base sm:text-lg font-medium">De la maison intelligente à l'industrie lourde, nous apportons des solutions électroniques de pointe.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               { icon: <Smartphone />, title: "Domotique", desc: "Automatisation résidentielle, éclairage, sécurité et confort connecté." },
               { icon: <Factory />, title: "Électricité Industrielle", desc: "Automatisme, maintenance API, armoires électriques et optimisation énergétique." },
@@ -766,23 +766,23 @@ export default function App() {
       </section>
 
       {/* CATALOGUE */}
-      <section id="catalogue" className="py-32 bg-brand-bg">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+      <section id="catalogue" className="py-20 sm:py-32 bg-slate-50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16 gap-8">
             <div className="max-w-xl">
-              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter uppercase">Catalogue de Réalisations</h2>
-              <p className="text-slate-500 text-lg font-medium italic">Cliquez sur une solution pour explorer ses caractéristiques et avantages exclusifs.</p>
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-4 sm:mb-6 tracking-tighter uppercase">Catalogue de Réalisations</h2>
+              <p className="text-slate-500 text-base sm:text-lg font-medium italic">Cliquez sur une solution pour explorer ses caractéristiques et avantages exclusifs.</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {['Tous', 'Domotique', 'Industrie', 'Electronique'].map((filter) => (
-                <button key={filter} className="px-6 py-3 rounded-full text-sm font-bold border border-slate-200 hover:border-blue-600 hover:text-blue-600 transition bg-white">
+                <button key={filter} className="px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold border border-slate-200 hover:border-blue-600 hover:text-blue-600 transition bg-white">
                   {filter}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
             {products.map((product) => (
               <ProductCard 
                 key={product.id} 
@@ -795,27 +795,27 @@ export default function App() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="py-32 px-6">
+      <section className="py-20 sm:py-32 px-4 sm:px-6">
         <div className="container mx-auto">
-          <div className="bg-blue-600 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-blue-200">
+          <div className="bg-blue-600 rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-blue-200">
             <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
-              <div className="absolute -top-24 -left-24 w-96 h-96 bg-white rounded-full blur-[100px]" />
-              <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-900 rounded-full blur-[100px]" />
+              <div className="absolute -top-24 -left-24 w-64 sm:w-96 h-64 sm:h-96 bg-white rounded-full blur-[80px] sm:blur-[100px]" />
+              <div className="absolute -bottom-24 -right-24 w-64 sm:w-96 h-64 sm:h-96 bg-indigo-900 rounded-full blur-[80px] sm:blur-[100px]" />
             </div>
             
             <div className="relative z-10 max-w-3xl mx-auto">
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">Prêt à transformer votre quotidien ?</h2>
-              <p className="text-blue-100 text-xl mb-12 font-medium">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-6 sm:mb-8 leading-tight">Prêt à transformer votre quotidien ?</h2>
+              <p className="text-blue-100 text-lg sm:text-xl mb-8 sm:mb-12 font-medium">
                 Discutons de votre projet. Qu'il s'agisse d'une maison intelligente ou d'un besoin industriel, Agboton Fabio vous accompagne de A à Z.
               </p>
-              <div className="flex flex-wrap justify-center gap-6">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
                 <a 
                   href={CONTACT_WHATSAPP}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white text-blue-600 px-12 py-6 rounded-2xl font-black text-lg hover:bg-slate-50 transition shadow-xl flex items-center gap-3"
+                  className="bg-white text-blue-600 px-8 sm:px-12 py-4 sm:py-6 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg hover:bg-slate-50 transition shadow-xl flex items-center gap-3"
                 >
-                  Démarrer sur WhatsApp <ArrowRight size={24} />
+                  Démarrer sur WhatsApp <ArrowRight size={20} sm:size={24} />
                 </a>
               </div>
             </div>
@@ -824,11 +824,11 @@ export default function App() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-slate-100 py-24 px-6">
+      <footer className="bg-white border-t border-slate-100 py-16 sm:py-24 px-4 sm:px-6">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-16 mb-16">
-            <div className="col-span-2">
-              <div className="flex items-center gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 sm:gap-16 mb-16">
+            <div className="sm:col-span-2">
+              <div className="flex items-center gap-3 mb-6 sm:mb-8">
                 <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
                   <Bolt size={20} />
                 </div>
@@ -840,12 +840,12 @@ export default function App() {
             </div>
             
             <div>
-              <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-8">Contact</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 sm:mb-8">Contact</h4>
               <p className="text-slate-900 font-bold mb-2">Agboton Fabio</p>
               <p className="text-slate-500 text-sm font-medium mb-4">Technicien Supérieur en Électrotechnique</p>
               <div className="flex flex-col gap-2">
-                <a href="tel:+2290162330710" className="text-blue-600 font-bold hover:underline">+229 01 62 33 07 10</a>
-                <a href="tel:+2290140377059" className="text-blue-600 font-bold hover:underline">+229 01 40 377 059</a>
+                <a href="tel:+2290162330710" className="text-blue-600 font-bold hover:underline text-sm sm:text-base">+229 01 62 33 07 10</a>
+                <a href="tel:+2290140377059" className="text-blue-600 font-bold hover:underline text-sm sm:text-base">+229 01 40 377 059</a>
               </div>
             </div>
 
