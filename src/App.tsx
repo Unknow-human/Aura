@@ -405,9 +405,28 @@ const SmartHomeInteractive = () => {
   );
 };
 
-const AdminDashboard = ({ products, onUpdate, onClose }: { products: Product[], onUpdate: () => void, onClose: () => void }) => {
+const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: Product[], settings: any, onUpdate: () => void, onClose: () => void }) => {
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+
+  const handleHeroImageUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!heroImageFile) return;
+    setIsSaving(true);
+    const formData = new FormData();
+    formData.append('hero_image', heroImageFile);
+    try {
+      await fetch('/api/settings', { method: 'POST', body: formData });
+      onUpdate();
+      setHeroImageFile(null);
+      alert("Image d'accueil mise à jour !");
+    } catch (error) {
+      alert("Erreur lors de la mise à jour");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Voulez-vous vraiment supprimer cet article ?")) return;
@@ -472,6 +491,37 @@ const AdminDashboard = ({ products, onUpdate, onClose }: { products: Product[], 
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+          <div className="mb-12 p-6 bg-blue-50 rounded-3xl border border-blue-100">
+            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+              <Bolt className="text-blue-600" size={20} /> Paramètres Généraux
+            </h3>
+            <form onSubmit={handleHeroImageUpdate} className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="w-full sm:w-48 h-32 rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm">
+                <img src={settings.hero_image} className="w-full h-full object-cover" alt="Hero actuelle" />
+              </div>
+              <div className="flex-1 space-y-4">
+                <p className="text-sm text-slate-500 font-medium">Changer l'image principale de la page d'accueil</p>
+                <div className="flex flex-wrap gap-4">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => setHeroImageFile(e.target.files?.[0] || null)}
+                    className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                  />
+                  {heroImageFile && (
+                    <button 
+                      type="submit"
+                      disabled={isSaving}
+                      className="bg-slate-900 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-blue-600 transition"
+                    >
+                      {isSaving ? "Mise à jour..." : "Appliquer le changement"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+
           {editingProduct ? (
             <form onSubmit={handleSave} className="space-y-8 max-w-3xl mx-auto">
               <div className="grid md:grid-cols-2 gap-6">
@@ -593,24 +643,32 @@ const AdminDashboard = ({ products, onUpdate, onClose }: { products: Product[], 
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [settings, setSettings] = useState<any>({ hero_image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000' });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [legalType, setLegalType] = useState<'legal' | 'privacy' | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [password, setPassword] = useState('');
 
-  const fetchProducts = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch('/api/products');
-      const data = await res.json();
-      setProducts(data);
+      const [prodRes, setRes] = await Promise.all([
+        fetch('/api/products'),
+        fetch('/api/settings')
+      ]);
+      const [prodData, setData] = await Promise.all([
+        prodRes.json(),
+        setRes.json()
+      ]);
+      setProducts(prodData);
+      if (setData.hero_image) setSettings(setData);
     } catch (error) {
-      console.error("Failed to fetch products", error);
+      console.error("Failed to fetch data", error);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
   const handleAdminLogin = (e: React.FormEvent) => {
@@ -664,9 +722,9 @@ export default function App() {
             <div className="absolute -inset-2 sm:-inset-4 bg-blue-100 rounded-[2rem] sm:rounded-[3rem] blur-2xl sm:blur-3xl opacity-30 animate-pulse" />
             <div className="relative rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl border-4 sm:border-8 border-white">
               <img 
-                src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000" 
+                src={settings.hero_image} 
                 className="w-full h-[300px] sm:h-[500px] object-cover" 
-                alt="Techno-Energie Lab"
+                alt="Expertise Électronique"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute bottom-8 left-8 right-8 glass-card p-6 rounded-2xl">
@@ -919,7 +977,8 @@ export default function App() {
             {isAdmin ? (
               <AdminDashboard 
                 products={products} 
-                onUpdate={fetchProducts} 
+                settings={settings}
+                onUpdate={fetchData} 
                 onClose={() => setShowAdmin(false)} 
               />
             ) : (
