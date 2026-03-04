@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build",
-    "start": "tsx server.ts",
-    "preview": "vite preview",
+    "build": "npx vite build",
+    "start": "node --experimental-strip-types server.ts",
+    "preview": "npx vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },
