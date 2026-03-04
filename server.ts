@@ -58,7 +58,9 @@ try {
 
 // Seed initial data if empty
 const count = db.prepare("SELECT COUNT(*) as count FROM products").get() as { count: number };
+console.log("Current product count:", count.count);
 if (count.count === 0) {
+  console.log("Seeding initial products...");
   const initialProducts = [
     {
       id: 'aura-v2-infinity',
@@ -171,6 +173,7 @@ if (count.count === 0) {
   for (const p of initialProducts) {
     insert.run(p);
   }
+  console.log(`Seeded ${initialProducts.length} products successfully.`);
 }
 
 // Seed settings if empty
