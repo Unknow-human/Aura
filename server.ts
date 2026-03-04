@@ -203,11 +203,27 @@ const upload = multer({ storage });
 app.get("/api/products", (req, res) => {
   try {
     const products = db.prepare("SELECT * FROM products ORDER BY created_at DESC").all();
-    res.json(products.map((p: any) => ({
-      ...p,
-      features: p.features ? JSON.parse(p.features) : [],
-      benefits: p.benefits ? JSON.parse(p.benefits) : []
-    })));
+    res.json(products.map((p: any) => {
+      let features = [];
+      let benefits = [];
+      try {
+        features = p.features ? JSON.parse(p.features) : [];
+        if (!Array.isArray(features)) features = [];
+      } catch (e) {
+        features = [];
+      }
+      try {
+        benefits = p.benefits ? JSON.parse(p.benefits) : [];
+        if (!Array.isArray(benefits)) benefits = [];
+      } catch (e) {
+        benefits = [];
+      }
+      return {
+        ...p,
+        features,
+        benefits
+      };
+    }));
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch products" });
   }
@@ -287,22 +303,32 @@ app.use("/uploads", express.static(uploadDir));
 
 // Vite middleware
 async function setupVite() {
-  if (process.env.NODE_ENV !== "production") {
+  const isProduction = process.env.NODE_ENV === "production" || fs.existsSync(path.join(__dirname, "dist"));
+  
+  if (isProduction) {
+    console.log("Production mode: Serving static files from dist");
+    app.use(express.static(path.join(__dirname, "dist")));
+    
+    // Handle SPA fallback
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+        return next();
+      }
+      const indexPath = path.join(__dirname, "dist", "index.html");
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send("Index file not found. Please run build.");
+      }
+    });
+  } else {
+    console.log("Development mode: Using Vite middleware");
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.join(__dirname, "dist")));
-    // Handle SPA fallback
-    app.get("*", (req, res, next) => {
-      if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
-        return next();
-      }
-      res.sendFile(path.join(__dirname, "dist", "index.html"));
-    });
   }
 
   const PORT = 3000;
