@@ -1,15 +1,27 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
-import Database from "better-sqlite3";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const Database = require("better-sqlite3");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const db = new Database("techno_energie.db");
+console.log("Starting server...");
+console.log("Environment:", process.env.NODE_ENV);
+
+let db;
+try {
+  db = new Database("techno_energie.db");
+  console.log("Database connected successfully");
+} catch (err) {
+  console.error("Failed to connect to database:", err);
+  process.exit(1);
+}
 
 // Initialize DB
 db.exec(`
@@ -33,10 +45,15 @@ db.exec(`
 `);
 
 // Check if created_at column exists (for migration)
-const tableInfo = db.prepare("PRAGMA table_info(products)").all() as any[];
-const hasCreatedAt = tableInfo.some(col => col.name === 'created_at');
-if (!hasCreatedAt) {
-  db.exec("ALTER TABLE products ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+try {
+  const tableInfo = db.prepare("PRAGMA table_info(products)").all();
+  const hasCreatedAt = tableInfo.some((col: any) => col.name === 'created_at');
+  if (!hasCreatedAt) {
+    db.exec("ALTER TABLE products ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+    console.log("Migration: added created_at column");
+  }
+} catch (err) {
+  console.error("Migration failed:", err);
 }
 
 // Seed initial data if empty
@@ -169,6 +186,7 @@ app.use(express.json());
 const uploadDir = path.join(__dirname, "public", "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+  console.log("Created upload directory:", uploadDir);
 }
 
 const storage = multer.diskStorage({
@@ -268,16 +286,39 @@ app.post("/api/settings", upload.single("hero_image"), (req, res) => {
 app.use("/uploads", express.static(uploadDir));
 
 // Vite middleware
-if (process.env.NODE_ENV !== "production") {
-  const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: "spa",
+async function setupVite() {
+  if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    app.use(express.static(path.join(__dirname, "dist")));
+    // Handle SPA fallback
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+        return next();
+      }
+      res.sendFile(path.join(__dirname, "dist", "index.html"));
+    });
+  }
+
+  const PORT = 3000;
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
   });
-  app.use(vite.middlewares);
-} else {
-  app.use(express.static(path.join(__dirname, "dist")));
 }
 
-app.listen(3000, "0.0.0.0", () => {
-  console.log("Server running on http://localhost:3000");
+setupVite().catch(err => {
+  console.error("Failed to setup Vite middleware:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
