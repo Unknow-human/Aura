@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bolt, 
   Cpu, 
@@ -203,7 +203,7 @@ const Modal = ({ product, onClose }: ModalProps) => {
               <div>
                 <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Caractéristiques</h4>
                 <div className="grid gap-3">
-                  {product.features.map((f, i) => (
+                  {(product.features || []).map((f, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <CheckCircle2 className="text-blue-500 mt-0.5 shrink-0" size={18} />
                       <span className="text-sm text-slate-700 font-medium">{f}</span>
@@ -215,7 +215,7 @@ const Modal = ({ product, onClose }: ModalProps) => {
               <div>
                 <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Avantages</h4>
                 <div className="flex flex-wrap gap-2">
-                  {product.benefits.map((b, i) => (
+                  {(product.benefits || []).map((b, i) => (
                     <span key={i} className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold">
                       {b}
                     </span>
@@ -349,7 +349,7 @@ const SmartHomeInteractive = () => {
     <div className="bg-white/5 rounded-[1.5rem] sm:rounded-[3rem] p-6 sm:p-12 border border-white/10 relative overflow-hidden h-full flex flex-col">
       <div className="relative z-10 flex-1">
         <div className="flex gap-2 mb-6 sm:mb-8">
-          {steps.map((_, i) => (
+          {(steps || []).map((_, i) => (
             <button 
               key={i}
               onClick={() => setActiveStep(i)}
@@ -593,6 +593,28 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
                 </div>
               </div>
 
+              <div className="space-y-4">
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Caractéristiques (une par ligne)</label>
+                <textarea 
+                  rows={3}
+                  value={(editingProduct.features || []).join('\n')}
+                  onChange={e => setEditingProduct({...editingProduct, features: e.target.value.split('\n').filter(s => s.trim() !== '')})}
+                  placeholder="Ex: Sécurité SBEE (15s)"
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Avantages (un par ligne)</label>
+                <textarea 
+                  rows={3}
+                  value={(editingProduct.benefits || []).join('\n')}
+                  onChange={e => setEditingProduct({...editingProduct, benefits: e.target.value.split('\n').filter(s => s.trim() !== '')})}
+                  placeholder="Ex: Réduction de facture"
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+
               <div className="flex gap-4 pt-6">
                 <button 
                   type="submit" 
@@ -612,7 +634,7 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
             </form>
           ) : (
             <div className="grid gap-4">
-              {products.map(p => (
+              {(products || []).map(p => (
                 <div key={p.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl transition-all">
                   <img src={p.image} className="w-20 h-20 rounded-xl object-cover shadow-sm" />
                   <div className="flex-1">
@@ -645,7 +667,9 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [settings, setSettings] = useState<any>({ hero_image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000' });
+  const [settings, setSettings] = useState<any>({ 
+    hero_image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000' 
+  });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [legalType, setLegalType] = useState<'legal' | 'privacy' | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -662,10 +686,16 @@ function App() {
         prodRes.json(),
         setRes.json()
       ]);
-      setProducts(prodData);
-      if (setData.hero_image) setSettings(setData);
+      if (Array.isArray(prodData)) {
+        setProducts(prodData);
+      } else {
+        console.error("Products data is not an array:", prodData);
+        setProducts([]);
+      }
+      if (setData && setData.hero_image) setSettings(setData);
     } catch (error) {
       console.error("Failed to fetch data", error);
+      setProducts([]);
     }
   };
 
@@ -843,7 +873,7 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
-            {products.map((product) => (
+            {(products || []).map((product) => (
               <ProductCard 
                 key={product.id} 
                 product={product} 
