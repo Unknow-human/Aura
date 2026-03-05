@@ -675,28 +675,48 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [password, setPassword] = useState('');
+  const [activeFilter, setActiveFilter] = useState('Tous');
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  console.log("Rendering App with products:", products.length);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
-      const [prodRes, setRes] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/settings')
-      ]);
-      const [prodData, setData] = await Promise.all([
-        prodRes.json(),
-        setRes.json()
-      ]);
-      if (Array.isArray(prodData)) {
-        setProducts(prodData);
+      // Fetch products independently
+      const prodRes = await fetch('/api/products');
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        if (Array.isArray(prodData)) {
+          setProducts(prodData);
+          console.log("Products loaded:", prodData.length);
+        } else {
+          console.error("Products data is not an array:", prodData);
+          setProducts([]);
+        }
       } else {
-        console.error("Products data is not an array:", prodData);
+        console.error("Failed to fetch products:", prodRes.status);
         setProducts([]);
       }
-      if (setData && setData.hero_image) setSettings(setData);
     } catch (error) {
-      console.error("Failed to fetch data", error);
+      console.error("Error fetching products:", error);
       setProducts([]);
     }
+
+    try {
+      // Fetch settings independently
+      const setRes = await fetch('/api/settings');
+      if (setRes.ok) {
+        const setData = await setRes.json();
+        if (setData && setData.hero_image) {
+          setSettings(setData);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+    }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -865,7 +885,15 @@ function App() {
             </div>
             <div className="flex flex-wrap gap-2">
               {['Tous', 'Domotique', 'Industrie', 'Electronique'].map((filter) => (
-                <button key={filter} className="px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold border border-slate-200 hover:border-blue-600 hover:text-blue-600 transition bg-white">
+                <button 
+                  key={filter} 
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold border transition ${
+                    activeFilter === filter 
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200' 
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-600 hover:text-blue-600'
+                  }`}
+                >
                   {filter}
                 </button>
               ))}
@@ -873,13 +901,28 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
-            {(products || []).map((product) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onClick={() => setSelectedProduct(product)} 
-              />
-            ))}
+            {isLoading ? (
+              <div className="col-span-full py-20 text-center">
+                <div className="animate-spin w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-slate-500 font-bold">Chargement du catalogue...</p>
+              </div>
+            ) : (products || []).filter(p => activeFilter === 'Tous' || p.type.toLowerCase() === activeFilter.toLowerCase()).length > 0 ? (
+              (products || [])
+                .filter(p => activeFilter === 'Tous' || p.type.toLowerCase() === activeFilter.toLowerCase())
+                .map((product) => (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    onClick={() => setSelectedProduct(product)} 
+                  />
+                ))
+            ) : (
+              <div className="col-span-full py-20 text-center bg-white rounded-[2rem] border border-dashed border-slate-200">
+                <Factory className="mx-auto text-slate-300 mb-4" size={48} />
+                <p className="text-slate-500 font-bold text-lg">Aucune réalisation trouvée dans cette catégorie.</p>
+                <p className="text-slate-400 text-sm mt-2">Essayez une autre catégorie ou revenez plus tard.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
