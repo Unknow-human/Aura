@@ -203,7 +203,7 @@ const Modal = ({ product, onClose }: ModalProps) => {
               <div>
                 <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Caractéristiques</h4>
                 <div className="grid gap-3">
-                  {(product.features || []).map((f, i) => (
+                  {(product.features || []).filter(f => f.trim() !== '').map((f, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <CheckCircle2 className="text-blue-500 mt-0.5 shrink-0" size={18} />
                       <span className="text-sm text-slate-700 font-medium">{f}</span>
@@ -215,7 +215,7 @@ const Modal = ({ product, onClose }: ModalProps) => {
               <div>
                 <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Avantages</h4>
                 <div className="flex flex-wrap gap-2">
-                  {(product.benefits || []).map((b, i) => (
+                  {(product.benefits || []).filter(b => b.trim() !== '').map((b, i) => (
                     <span key={i} className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-bold">
                       {b}
                     </span>
@@ -445,7 +445,8 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
     const formData = new FormData();
     Object.entries(editingProduct || {}).forEach(([key, value]) => {
       if (key === 'features' || key === 'benefits') {
-        formData.append(key, JSON.stringify(value));
+        const filtered = (value as string[]).filter(v => v.trim() !== '');
+        formData.append(key, JSON.stringify(filtered));
       } else if (key === 'imageFile') {
         formData.append('image', value as File);
       } else if (value !== undefined && value !== null) {
@@ -462,11 +463,16 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erreur ${res.status}`);
+      }
       setEditingProduct(null);
       onUpdate();
-    } catch (error) {
-      alert("Erreur lors de l'enregistrement");
+      alert("Produit enregistré avec succès !");
+    } catch (error: any) {
+      console.error("Save error:", error);
+      alert("Erreur lors de l'enregistrement : " + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -489,7 +495,7 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
               <Plus size={20} /> <span className="hidden sm:inline">Nouveau</span>
             </button>
             <button onClick={onClose} className="p-2 sm:p-3 hover:bg-slate-200 rounded-lg sm:rounded-xl transition">
-              <X size={20} sm:size={24} />
+              <X size={24} />
             </button>
           </div>
         </div>
@@ -600,7 +606,7 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
                 <textarea 
                   rows={3}
                   value={(editingProduct.features || []).join('\n')}
-                  onChange={e => setEditingProduct({...editingProduct, features: e.target.value.split('\n').filter(s => s.trim() !== '')})}
+                  onChange={e => setEditingProduct({...editingProduct, features: e.target.value.split('\n')})}
                   placeholder="Ex: Sécurité SBEE (15s)"
                   className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
@@ -611,7 +617,7 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
                 <textarea 
                   rows={3}
                   value={(editingProduct.benefits || []).join('\n')}
-                  onChange={e => setEditingProduct({...editingProduct, benefits: e.target.value.split('\n').filter(s => s.trim() !== '')})}
+                  onChange={e => setEditingProduct({...editingProduct, benefits: e.target.value.split('\n')})}
                   placeholder="Ex: Réduction de facture"
                   className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                 />
@@ -753,7 +759,7 @@ function App() {
             <h1 className="text-4xl sm:text-5xl md:text-8xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tighter text-slate-900">
               Vivez dans le <span className="text-blue-600 italic">confort</span> du futur.
             </h1>
-            <p className="text-lg sm:text-xl text-slate-500 mb-8 sm:mb-10 leading-relaxed max-w-xl font-medium">
+            <p className="text-lg sm:text-xl text-slate-600 mb-8 sm:mb-10 leading-relaxed max-w-xl font-medium">
               Agboton Fabio transforme votre quotidien. Nous installons des systèmes intelligents et concevons vos futurs produits électroniques. 
               <span className="text-slate-900 font-bold block mt-2">Simple, fiable et économique.</span>
             </p>
