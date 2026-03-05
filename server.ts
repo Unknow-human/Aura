@@ -20,8 +20,33 @@ const __dirname = path.dirname(__filename);
 console.log("Starting server...");
 console.log("Environment:", process.env.NODE_ENV);
 
+let connectionString = process.env.DATABASE_URL?.trim();
+
+if (connectionString && connectionString.includes(" ")) {
+  console.log("Detected spaces in DATABASE_URL, attempting to fix encoding...");
+  try {
+    // Try to isolate the password part more robustly
+    const atIndex = connectionString.lastIndexOf('@');
+    if (atIndex !== -1) {
+      const authPart = connectionString.substring(0, atIndex);
+      const hostPart = connectionString.substring(atIndex + 1);
+      
+      const firstColonIndex = authPart.indexOf(':');
+      const lastColonIndex = authPart.lastIndexOf(':');
+      
+      if (lastColonIndex > firstColonIndex) {
+        const protocolAndUser = authPart.substring(0, lastColonIndex);
+        const password = authPart.substring(lastColonIndex + 1);
+        connectionString = `${protocolAndUser}:${encodeURIComponent(password)}@${hostPart}`;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to auto-fix DATABASE_URL encoding:", e);
+  }
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: connectionString,
   ssl: {
     rejectUnauthorized: false
   }
@@ -63,6 +88,14 @@ async function initDb() {
         sort_order INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Migration: Ensure sort_order column exists if table was created before this feature
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='sort_order') THEN
+          ALTER TABLE products ADD COLUMN sort_order INTEGER DEFAULT 0;
+        END IF;
+      END $$;
 
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
