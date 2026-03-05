@@ -102,5 +102,5 @@ export const PRODUCTS: Product[] = [
 
 export const CONTACT_WHATSAPP = "https://wa.me/2290162330710";
 export const LINKEDIN_URL = "https://www.linkedin.com/in/fabio-agboton-477863317";
-export const FACEBOOK_URL = "https://facebook.com/technoenergie";
-export const INSTAGRAM_URL = "https://instagram.com/technoenergie";
+export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=100083236365452"; // Updated to a likely profile link or search
+export const INSTAGRAM_URL = "https://www.instagram.com/fabio_agboton?igshid=MWFpaWZ0YTQ5cDk4eg";
