@@ -23,7 +23,9 @@ import {
   Edit2,
   Save,
   Image as ImageIcon,
-  Lock
+  Lock,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { CONTACT_WHATSAPP, LINKEDIN_URL, FACEBOOK_URL, INSTAGRAM_URL } from './constants';
 import { Product, ProductType } from './types';
@@ -436,6 +438,30 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
     onUpdate();
   };
 
+  const handleReorder = async (direction: 'up' | 'down', index: number) => {
+    const newProducts = [...products];
+    if (direction === 'up' && index > 0) {
+      [newProducts[index], newProducts[index - 1]] = [newProducts[index - 1], newProducts[index]];
+    } else if (direction === 'down' && index < newProducts.length - 1) {
+      [newProducts[index], newProducts[index + 1]] = [newProducts[index + 1], newProducts[index]];
+    } else {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/products/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIds: newProducts.map(p => p.id) }),
+      });
+      if (res.ok) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error("Reorder error:", error);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -642,8 +668,24 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
             </form>
           ) : (
             <div className="grid gap-4">
-              {(products || []).map(p => (
+              {(products || []).map((p, index) => (
                 <div key={p.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl transition-all">
+                  <div className="flex flex-col gap-1">
+                    <button 
+                      onClick={() => handleReorder('up', index)}
+                      disabled={index === 0}
+                      className={`p-1 rounded hover:bg-slate-200 transition ${index === 0 ? 'opacity-20 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600'}`}
+                    >
+                      <ArrowUp size={16} />
+                    </button>
+                    <button 
+                      onClick={() => handleReorder('down', index)}
+                      disabled={index === products.length - 1}
+                      className={`p-1 rounded hover:bg-slate-200 transition ${index === products.length - 1 ? 'opacity-20 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600'}`}
+                    >
+                      <ArrowDown size={16} />
+                    </button>
+                  </div>
                   <img src={p.image} className="w-20 h-20 rounded-xl object-cover shadow-sm" />
                   <div className="flex-1">
                     <h4 className="font-black text-slate-900">{p.title}</h4>
