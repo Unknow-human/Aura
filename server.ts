@@ -5,6 +5,12 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import pg from "pg";
+import dns from "dns";
+
+// Force IPv4 resolution to avoid ECONNREFUSED issues with Supabase IPv6
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 const { Pool } = pg;
 
@@ -20,6 +26,15 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+
+if (!process.env.DATABASE_URL) {
+  console.error("CRITICAL: DATABASE_URL is not defined in environment variables!");
+} else {
+  console.log("DATABASE_URL is defined, attempting connection...");
+  // Mask password for logging
+  const maskedUrl = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ":****@");
+  console.log("Connection string (masked):", maskedUrl);
+}
 
 async function initDb() {
   try {
@@ -235,17 +250,27 @@ app.get("/api/products", async (req, res) => {
 
 app.post("/api/products", upload.single("image"), async (req, res) => {
   try {
-    console.log("POST /api/products received:", req.body);
+    console.log("POST /api/products received body:", req.body);
+    console.log("POST /api/products received file:", req.file);
+    
     const { id, title, shortDescription, fullDescription, type, features, benefits } = req.body;
+    
+    if (!id) {
+      console.error("Missing product ID");
+      return res.status(400).json({ error: "L'identifiant du produit est manquant" });
+    }
+
     const image = req.file ? `/uploads/${req.file.filename}` : req.body.image;
     
-    console.log("Saving product:", { id, title, type, image });
+    console.log("Saving product to DB:", { id, title, type, image });
     
     // Check if product exists
     const existing = await pool.query("SELECT id FROM products WHERE id = $1", [id]);
+    console.log("Existing product check result:", existing.rowCount);
     
     if (existing.rowCount && existing.rowCount > 0) {
       // Update existing product
+      console.log("Updating existing product...");
       await pool.query(`
         UPDATE products 
         SET title = $1, short_description = $2, full_description = $3, type = $4, image = $5, features = $6, benefits = $7
@@ -253,16 +278,18 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
       `, [title, shortDescription, fullDescription, type, image, features, benefits, id]);
     } else {
       // Insert new product
+      console.log("Inserting new product...");
       await pool.query(`
         INSERT INTO products (id, title, short_description, full_description, type, image, features, benefits)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `, [id, title, shortDescription, fullDescription, type, image, features, benefits]);
     }
     
+    console.log("Product saved successfully");
     res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to save product" });
+  } catch (error: any) {
+    console.error("Error saving product:", error);
+    res.status(500).json({ error: "Erreur serveur lors de l'enregistrement : " + error.message });
   }
 });
 
