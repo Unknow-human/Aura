@@ -440,6 +440,8 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
     e.preventDefault();
     setIsSaving(true);
     
+    console.log("Saving product data:", editingProduct);
+    
     const formData = new FormData();
     Object.entries(editingProduct || {}).forEach(([key, value]) => {
       if (key === 'features' || key === 'benefits') {
@@ -772,21 +774,28 @@ function App() {
             transition={{ duration: 1, delay: 0.2 }}
           >
             <div className="absolute -inset-2 sm:-inset-4 bg-blue-100 rounded-[2rem] sm:rounded-[3rem] blur-2xl sm:blur-3xl opacity-30 animate-pulse" />
-            <div className="relative rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl border-4 sm:border-8 border-white">
-              <img 
-                src={settings.hero_image} 
-                className="w-full h-[300px] sm:h-[500px] object-cover" 
-                alt="Expertise Électronique"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute bottom-8 left-8 right-8 glass-card p-6 rounded-2xl">
+            <div className="relative rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl border-4 sm:border-8 border-white bg-slate-100">
+              <AnimatePresence mode="wait">
+                <motion.img 
+                  key={settings.hero_image}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  src={settings.hero_image} 
+                  className="w-full h-[300px] sm:h-[500px] object-cover" 
+                  alt="Expertise Électronique"
+                  referrerPolicy="no-referrer"
+                />
+              </AnimatePresence>
+              <div className="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 bg-slate-900/80 backdrop-blur-xl p-4 sm:p-6 rounded-2xl border border-white/10 shadow-2xl">
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-600 p-3 rounded-xl text-white">
+                  <div className="bg-blue-600 p-3 rounded-xl text-white shadow-lg shadow-blue-600/20">
                     <Microchip size={24} />
                   </div>
                   <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-blue-600 mb-1">Expertise Locale</p>
-                    <p className="text-sm font-bold text-slate-900">Conception de cartes électroniques sur mesure</p>
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-blue-400 mb-1">Expertise Locale</p>
+                    <p className="text-sm sm:text-base font-bold text-white leading-tight">Conception de cartes électroniques sur mesure</p>
                   </div>
                 </div>
               </div>
