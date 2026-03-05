@@ -30,7 +30,15 @@ const pool = new Pool({
 if (!process.env.DATABASE_URL) {
   console.error("CRITICAL: DATABASE_URL is not defined in environment variables!");
 } else {
-  console.log("DATABASE_URL is defined, attempting connection...");
+  try {
+    const url = new URL(process.env.DATABASE_URL);
+    console.log(`Attempting connection to host: ${url.hostname} on port: ${url.port || '5432'}`);
+    if (url.port === '5432') {
+      console.warn("WARNING: You are using port 5432 (Direct Connection). If you get ECONNREFUSED, please use port 6543 (Transaction Pooler) from Supabase settings.");
+    }
+  } catch (e) {
+    console.log("DATABASE_URL is defined but could not be parsed for logging.");
+  }
   // Mask password for logging
   const maskedUrl = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ":****@");
   console.log("Connection string (masked):", maskedUrl);
