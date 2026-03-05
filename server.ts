@@ -52,6 +52,7 @@ async function initDb() {
         poster TEXT,
         features TEXT, -- JSON string
         benefits TEXT,  -- JSON string
+        sort_order INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -172,11 +173,12 @@ async function initDb() {
         }
       ];
 
-      for (const p of initialProducts) {
+      for (let i = 0; i < initialProducts.length; i++) {
+        const p = initialProducts[i];
         await client.query(`
-          INSERT INTO products (id, title, short_description, full_description, type, image, poster, features, benefits)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        `, [p.id, p.title, p.shortDescription, p.fullDescription, p.type, p.image, p.poster, p.features, p.benefits]);
+          INSERT INTO products (id, title, short_description, full_description, type, image, poster, features, benefits, sort_order)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [p.id, p.title, p.shortDescription, p.fullDescription, p.type, p.image, p.poster, p.features, p.benefits, i]);
       }
       console.log(`Seeded ${initialProducts.length} products successfully.`);
     }
@@ -218,7 +220,7 @@ const upload = multer({ storage });
 // API Routes
 app.get("/api/products", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM products ORDER BY created_at DESC");
+    const result = await pool.query("SELECT * FROM products ORDER BY sort_order ASC, created_at DESC");
     res.json(result.rows.map((p: any) => {
       let features = [];
       let benefits = [];
@@ -290,6 +292,29 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
   } catch (error: any) {
     console.error("Error saving product:", error);
     res.status(500).json({ error: "Erreur serveur lors de l'enregistrement : " + error.message });
+  }
+});
+
+app.post("/api/products/reorder", async (req, res) => {
+  const { productIds } = req.body;
+  if (!Array.isArray(productIds)) {
+    return res.status(400).json({ error: "productIds must be an array" });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    for (let i = 0; i < productIds.length; i++) {
+      await client.query("UPDATE products SET sort_order = $1 WHERE id = $2", [i, productIds[i]]);
+    }
+    await client.query("COMMIT");
+    res.json({ success: true });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Reorder error:", error);
+    res.status(500).json({ error: "Failed to reorder products" });
+  } finally {
+    client.release();
   }
 });
 
