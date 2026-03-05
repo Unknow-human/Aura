@@ -11,6 +11,7 @@ export interface Product {
   features: string[];
   benefits: string[];
   price?: string;
+  sort_order?: number;
 }
 
 export interface Service {
