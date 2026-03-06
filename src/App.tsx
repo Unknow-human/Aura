@@ -728,33 +728,25 @@ function App() {
   const [activeFilter, setActiveFilter] = useState('Tous');
 
   const [isLoading, setIsLoading] = useState(true);
+  const [dbError, setDbError] = useState<string | null>(null);
 
   console.log("Rendering App with products:", products.length);
 
   const fetchData = async () => {
     setIsLoading(true);
+    setDbError(null);
     try {
-      // Fetch products independently
       const prodRes = await fetch('/api/products');
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         if (Array.isArray(prodData)) {
           setProducts(prodData);
-          console.log("Products loaded:", prodData.length);
-        } else {
-          console.error("Products data is not an array:", prodData);
-          setProducts([]);
         }
       } else {
-        console.error("Failed to fetch products:", prodRes.status);
-        setProducts([]);
+        const errorData = await prodRes.json().catch(() => ({}));
+        setDbError(errorData.error || "Impossible de se connecter à la base de données.");
       }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
-    }
 
-    try {
       // Fetch settings independently
       const setRes = await fetch('/api/settings');
       if (setRes.ok) {
@@ -764,7 +756,8 @@ function App() {
         }
       }
     } catch (error) {
-      console.error("Error fetching settings:", error);
+      console.error("Fetch error:", error);
+      setDbError("Erreur réseau : Vérifiez votre configuration DATABASE_URL.");
     }
     setIsLoading(false);
   };
@@ -962,6 +955,24 @@ function App() {
               <div className="col-span-full py-20 text-center">
                 <div className="animate-spin w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
                 <p className="text-slate-500 font-bold">Chargement du catalogue...</p>
+              </div>
+            ) : dbError ? (
+              <div className="col-span-full py-16 px-8 text-center bg-red-50 rounded-[2rem] border border-red-100">
+                <X className="mx-auto text-red-500 mb-4" size={48} />
+                <h3 className="text-xl font-bold text-red-900 mb-2">Erreur de Connexion</h3>
+                <p className="text-red-700 mb-6 max-w-md mx-auto">{dbError}</p>
+                <div className="bg-white p-4 rounded-xl text-left text-xs font-mono text-slate-600 mb-6 overflow-x-auto">
+                  <p className="font-bold mb-1">Solution :</p>
+                  <p>1. Vérifiez que DATABASE_URL est bien configurée sur Render.</p>
+                  <p>2. Utilisez le port 6543 (Transaction Pooler) de Supabase.</p>
+                  <p>3. Vérifiez votre mot de passe dans l'URL.</p>
+                </div>
+                <button 
+                  onClick={fetchData}
+                  className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition"
+                >
+                  Réessayer la connexion
+                </button>
               </div>
             ) : (products || []).filter(p => activeFilter === 'Tous' || p.type.toLowerCase() === activeFilter.toLowerCase()).length > 0 ? (
               (products || [])
