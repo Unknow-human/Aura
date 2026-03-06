@@ -259,6 +259,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // API Routes
+app.get("/api/ping", (req, res) => {
+  res.json({ status: "alive", timestamp: new Date().toISOString() });
+});
+
 app.get("/api/products", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM products ORDER BY sort_order ASC, created_at DESC");
