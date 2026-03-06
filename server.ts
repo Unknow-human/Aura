@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import multer from "multer";
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -243,19 +245,32 @@ app.use(express.json());
 
 // Multer setup
 const uploadDir = path.join(__dirname, "public", "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log("Created upload directory:", uploadDir);
-}
 
-const storage = multer.diskStorage({
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = process.env.CLOUDINARY_CLOUD_NAME ? new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'aura-products',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+  } as any,
+}) : multer.diskStorage({
   destination: (req, file, cb) => {
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
+
 const upload = multer({ storage });
 
 // API Routes
@@ -307,7 +322,7 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
       return res.status(400).json({ error: "L'identifiant du produit est manquant" });
     }
 
-    const image = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+    const image = req.file ? (req.file as any).path || (req.file as any).secure_url || `/uploads/${req.file.filename}` : req.body.image;
     
     console.log("Saving product to DB:", { id, title, type, image });
     
@@ -389,7 +404,7 @@ app.get("/api/settings", async (req, res) => {
 app.post("/api/settings", upload.single("hero_image"), async (req, res) => {
   try {
     if (req.file) {
-      const imageUrl = `/uploads/${req.file.filename}`;
+      const imageUrl = (req.file as any).path || (req.file as any).secure_url || `/uploads/${req.file.filename}`;
       await pool.query("INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2", ['hero_image', imageUrl]);
     } else if (req.body.hero_image) {
       await pool.query("INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2", ['hero_image', req.body.hero_image]);
