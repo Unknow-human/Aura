@@ -49,7 +49,7 @@ const Navbar = () => {
           <div className="bg-blue-600 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
             <Bolt size={18} />
           </div>
-          <div className="font-black text-lg sm:text-xl tracking-tighter text-slate-900">TECHNO-ENERGIE</div>
+          <div className="font-black text-lg sm:text-xl tracking-tighter text-slate-900">AURA-TECH</div>
         </div>
         
         <div className="hidden md:flex items-center gap-8">
@@ -68,7 +68,7 @@ const Navbar = () => {
             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
             </svg>
-            <span className="hidden sm:inline">CONTACTER FABIO</span>
+            <span className="hidden sm:inline">CONTACTER AURA-TECH</span>
             <span className="sm:hidden uppercase">Contact</span>
           </a>
           
@@ -105,10 +105,11 @@ const Navbar = () => {
 interface ProductCardProps {
   product: Product;
   onClick: () => void;
+  isNewest?: boolean;
   key?: string | number;
 }
 
-const ProductCard = ({ product, onClick }: ProductCardProps) => (
+const ProductCard = ({ product, onClick, isNewest }: ProductCardProps) => (
   <motion.div 
     layoutId={`card-${product.id}`}
     onClick={onClick}
@@ -126,7 +127,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => (
         <span className="bg-white/90 backdrop-blur-sm text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
           {product.type === 'domotique' ? 'Maison' : product.type === 'industrie' ? 'Entreprise' : 'Électronique'}
         </span>
-        {product.id === 'aura-v2-infinity' && (
+        {isNewest && (
           <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg animate-pulse">
             Nouveau / Vedette
           </span>
@@ -278,7 +279,7 @@ const LegalModal = ({ type, onClose }: { type: 'legal' | 'privacy' | null, onClo
             <section className="mb-8">
               <h3 className="text-xl font-bold mb-3">Éditeur du site</h3>
               <p className="text-slate-600">
-                Le site Techno-Energie est édité par <strong>Agboton Fabio</strong>, Technicien Supérieur en Électrotechnique.<br />
+                Le site Aura-Tech est édité par <strong>Aura-Tech</strong>, Technicien Supérieur en Électrotechnique.<br />
                 Siège social : Cotonou, Bénin.<br />
                 Contact : +229 01 62 33 07 10 / +229 01 40 377 059
               </p>
@@ -292,7 +293,7 @@ const LegalModal = ({ type, onClose }: { type: 'legal' | 'privacy' | null, onClo
             <section>
               <h3 className="text-xl font-bold mb-3">Propriété intellectuelle</h3>
               <p className="text-slate-600">
-                L'ensemble des contenus (textes, images, logos, codes sources) présents sur ce site est la propriété exclusive de Techno-Energie, sauf mention contraire. Toute reproduction est interdite sans accord préalable.
+                L'ensemble des contenus (textes, images, logos, codes sources) présents sur ce site est la propriété exclusive de Aura-Tech, sauf mention contraire. Toute reproduction est interdite sans accord préalable.
               </p>
             </section>
           </div>
@@ -767,6 +768,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [dbError, setDbError] = useState<string | null>(null);
 
+  const newestProductId = products.length > 0 
+    ? [...products].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())[0].id
+    : null;
+
   console.log("Rendering App with products:", products.length);
 
   const fetchData = async () => {
@@ -805,7 +810,7 @@ function App() {
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'fabio2024') {
+    if (password === 'auratech2024') {
       setIsAdmin(true);
     } else {
       alert("Mot de passe incorrect");
@@ -832,7 +837,7 @@ function App() {
               Vivez dans le <span className="text-blue-600 italic">confort</span> du futur.
             </h1>
             <p className="text-lg sm:text-xl text-slate-600 mb-8 sm:mb-10 leading-relaxed max-w-xl font-medium">
-              Agboton Fabio transforme votre quotidien. Nous installons des systèmes intelligents et concevons vos futurs produits électroniques. 
+              Aura-Tech transforme votre quotidien. Nous installons des systèmes intelligents et concevons vos futurs produits électroniques. 
               <span className="text-slate-900 font-bold block mt-2">Simple, fiable et économique.</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -1016,6 +1021,7 @@ function App() {
                   <ProductCard 
                     key={product.id} 
                     product={product} 
+                    isNewest={product.id === newestProductId}
                     onClick={() => setSelectedProduct(product)} 
                   />
                 ))
@@ -1042,7 +1048,7 @@ function App() {
             <div className="relative z-10 max-w-3xl mx-auto">
               <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-6 sm:mb-8 leading-tight">Prêt à transformer votre quotidien ?</h2>
               <p className="text-blue-100 text-lg sm:text-xl mb-8 sm:mb-12 font-medium">
-                Discutons de votre projet. Qu'il s'agisse d'une maison intelligente ou d'un besoin industriel, Agboton Fabio vous accompagne de A à Z.
+                Discutons de votre projet. Qu'il s'agisse d'une maison intelligente ou d'un besoin industriel, Aura-Tech vous accompagne de A à Z.
               </p>
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
                 <a 
@@ -1068,7 +1074,7 @@ function App() {
                 <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
                   <Bolt size={20} />
                 </div>
-                <div className="font-black text-2xl tracking-tighter text-slate-900">TECHNO-ENERGIE</div>
+                <div className="font-black text-2xl tracking-tighter text-slate-900">AURA-TECH</div>
               </div>
               <p className="text-slate-500 max-w-sm font-medium leading-relaxed">
                 L'excellence en ingénierie électronique et domotique au service du développement technologique au Bénin.
@@ -1077,8 +1083,8 @@ function App() {
             
             <div>
               <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 sm:mb-8">Contact</h4>
-              <p className="text-slate-900 font-bold mb-2">Agboton Fabio</p>
-              <p className="text-slate-500 text-sm font-medium mb-4">Technicien Supérieur en Électrotechnique</p>
+              <p className="text-slate-900 font-bold mb-2">Aura-Tech</p>
+              <p className="text-slate-500 text-sm font-medium mb-4">La solution à vos besoin en Électrotechnique</p>
               <div className="flex flex-col gap-2">
                 <a href="tel:+2290162330710" className="text-blue-600 font-bold hover:underline text-sm sm:text-base">+229 01 62 33 07 10</a>
                 <a href="tel:+2290140377059" className="text-blue-600 font-bold hover:underline text-sm sm:text-base">+229 01 40 377 059</a>
@@ -1136,7 +1142,7 @@ function App() {
           
             <div className="flex flex-col md:flex-row justify-between items-center gap-8">
               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
-                © {new Date().getFullYear()} Techno-Energie. Tous droits réservés.
+                © {new Date().getFullYear()} Aura-Tech. Tous droits réservés.
               </p>
               <div className="flex flex-wrap justify-center gap-6 md:gap-8">
                 <button 
