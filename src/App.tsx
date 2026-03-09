@@ -25,7 +25,8 @@ import {
   Image as ImageIcon,
   Lock,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  AlertTriangle
 } from 'lucide-react';
 import { CONTACT_WHATSAPP, LINKEDIN_URL, FACEBOOK_URL, INSTAGRAM_URL } from './constants';
 import { Product, ProductType } from './types';
@@ -415,6 +416,14 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [configStatus, setConfigStatus] = useState<{ cloudinaryConfigured: boolean, cloudName: string } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/config-status')
+      .then(res => res.json())
+      .then(data => setConfigStatus(data))
+      .catch(err => console.error("Config status error:", err));
+  }, []);
 
   const handleHeroImageUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -529,6 +538,22 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+          {configStatus && !configStatus.cloudinaryConfigured && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4">
+              <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
+                <AlertTriangle size={24} />
+              </div>
+              <div>
+                <h4 className="font-black text-amber-900 text-sm sm:text-base">Attention : Stockage temporaire actif</h4>
+                <p className="text-amber-700 text-xs sm:text-sm mt-1 leading-relaxed">
+                  Cloudinary n'est pas configuré (Cloud Name: "{configStatus.cloudName}"). 
+                  Les images que vous téléchargez seront perdues lors du prochain redémarrage du serveur. 
+                  Pour un stockage permanent, veuillez configurer Cloudinary dans les paramètres de l'application.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="mb-12 p-6 bg-blue-50 rounded-3xl border border-blue-100">
             <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
               <Bolt className="text-blue-600" size={20} /> Paramètres Généraux
