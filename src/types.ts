@@ -12,6 +12,7 @@ export interface Product {
   benefits: string[];
   price?: string;
   sort_order?: number;
+  created_at?: string;
 }
 
 export interface Service {
