@@ -53,9 +53,9 @@ const Navbar = () => {
         </div>
         
         <div className="hidden md:flex items-center gap-8">
-          <a href="#solutions" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">Solutions</a>
-          <a href="#domotique" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">Domotique</a>
-          <a href="#catalogue" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">Catalogue</a>
+          <a href="#solutions" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">Nos Services</a>
+          <a href="#domotique" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">C'est quoi ?</a>
+          <a href="#catalogue" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition">Nos Produits</a>
         </div>
 
         <div className="flex items-center gap-4">
@@ -89,9 +89,9 @@ const Navbar = () => {
             className="md:hidden bg-white border-t border-slate-100 overflow-hidden"
           >
             <div className="container mx-auto px-6 py-8 flex flex-col gap-6">
-              <a href="#solutions" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-slate-900 hover:text-blue-600 transition">Solutions</a>
-              <a href="#domotique" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-slate-900 hover:text-blue-600 transition">Domotique</a>
-              <a href="#catalogue" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-slate-900 hover:text-blue-600 transition">Catalogue</a>
+              <a href="#solutions" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-slate-900 hover:text-blue-600 transition">Nos Services</a>
+              <a href="#domotique" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-slate-900 hover:text-blue-600 transition">C'est quoi ?</a>
+              <a href="#catalogue" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold text-slate-900 hover:text-blue-600 transition">Nos Produits</a>
             </div>
           </motion.div>
         )}
@@ -122,7 +122,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => (
       />
       <div className="absolute top-4 left-4 flex gap-2">
         <span className="bg-white/90 backdrop-blur-sm text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
-          {product.type}
+          {product.type === 'domotique' ? 'Maison' : product.type === 'industrie' ? 'Entreprise' : 'Électronique'}
         </span>
         {product.id === 'aura-v2-infinity' && (
           <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg animate-pulse">
@@ -195,7 +195,9 @@ const Modal = ({ product, onClose }: ModalProps) => {
             </div>
           </div>
           <div className="p-8 md:p-12 overflow-y-auto">
-            <span className="text-blue-600 font-black uppercase tracking-[0.2em] text-xs mb-4 block">{product.type}</span>
+            <span className="text-blue-600 font-black uppercase tracking-[0.2em] text-xs mb-4 block">
+              {product.type === 'domotique' ? 'Maison' : product.type === 'industrie' ? 'Entreprise' : 'Électronique'}
+            </span>
             <h2 className="text-3xl md:text-4xl font-black mb-6 text-slate-900 leading-tight">{product.title}</h2>
             <p className="text-slate-600 leading-relaxed mb-8">
               {product.fullDescription}
@@ -325,22 +327,22 @@ const SmartHomeInteractive = () => {
   
   const steps = [
     {
-      title: "La Maison 'Classique'",
-      desc: "Vous devez tout faire manuellement : éteindre les lumières, vérifier le portail, surveiller la clim. C'est fatiguant et on oublie souvent.",
+      title: "Maison Classique",
+      desc: "Vous devez tout faire vous-même : éteindre les lumières, fermer le portail, surveiller la clim. C'est fatiguant et on oublie souvent.",
       icon: <Bolt className="text-slate-400" />,
       color: "bg-slate-800",
       visual: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800"
     },
     {
-      title: "Le Cerveau (AURA)",
-      desc: "On installe un petit boîtier intelligent. Il 'écoute' vos besoins et surveille votre maison 24h/24 sans que vous n'ayez rien à faire.",
+      title: "Le Cerveau Intelligent",
+      desc: "On installe un petit boîtier magique. Il s'occupe de tout pour vous, 24h/24, sans que vous n'ayez à lever le petit doigt.",
       icon: <Cpu className="text-blue-400" />,
       color: "bg-blue-900/40",
       visual: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=800"
     },
     {
-      title: "La Magie Opère",
-      desc: "Vous partez ? La clim s'éteint seule. Il pleut ? Le portail se ferme. Vous rentrez ? La lumière s'allume pour vous accueillir.",
+      title: "Votre Vie Simplifiée",
+      desc: "Vous partez ? La clim s'éteint seule. Il pleut ? Le portail se ferme. Vous rentrez ? La lumière s'allume pour vous accueillir. C'est ça, le confort !",
       icon: <Zap className="text-yellow-400" />,
       color: "bg-yellow-900/40",
       visual: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&q=80&w=800"
@@ -489,9 +491,9 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
         method: 'POST',
         body: formData,
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || `Erreur ${res.status}`);
+        throw new Error(data.details || data.error || `Erreur ${res.status}`);
       }
       setEditingProduct(null);
       onUpdate();
@@ -577,9 +579,9 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
                     onChange={e => setEditingProduct({...editingProduct, type: e.target.value as ProductType})}
                     className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                   >
-                    <option value="domotique">Domotique</option>
-                    <option value="industrie">Industrie</option>
-                    <option value="electronique">Electronique</option>
+                    <option value="domotique">Maison (Domotique)</option>
+                    <option value="industrie">Entreprise (Industrie)</option>
+                    <option value="electronique">Électronique (Sur mesure)</option>
                   </select>
                 </div>
               </div>
@@ -689,7 +691,9 @@ const AdminDashboard = ({ products, settings, onUpdate, onClose }: { products: P
                   <img src={p.image} className="w-20 h-20 rounded-xl object-cover shadow-sm" />
                   <div className="flex-1">
                     <h4 className="font-black text-slate-900">{p.title}</h4>
-                    <p className="text-slate-500 text-sm font-medium">{p.type}</p>
+                    <p className="text-slate-500 text-sm font-medium">
+                      {p.type === 'domotique' ? 'Maison' : p.type === 'industrie' ? 'Entreprise' : 'Électronique'}
+                    </p>
                   </div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
@@ -902,16 +906,16 @@ function App() {
       <section id="solutions" className="py-20 sm:py-32 bg-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-            <span className="text-blue-600 font-black uppercase tracking-[0.3em] text-[10px] sm:text-xs mb-4 block">Nos Domaines d'Intervention</span>
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-6 tracking-tighter">Une expertise <span className="text-blue-600">multidisciplinaire</span>.</h2>
-            <p className="text-slate-500 text-base sm:text-lg font-medium">De la maison intelligente à l'industrie lourde, nous apportons des solutions électroniques de pointe.</p>
+            <span className="text-blue-600 font-black uppercase tracking-[0.3em] text-[10px] sm:text-xs mb-4 block">Ce que nous faisons pour vous</span>
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-6 tracking-tighter">Des solutions <span className="text-blue-600">simples</span> pour tous.</h2>
+            <p className="text-slate-500 text-base sm:text-lg font-medium">De la maison intelligente aux besoins des entreprises, nous rendons la technologie facile à utiliser.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { icon: <Smartphone />, title: "Domotique", desc: "Automatisation résidentielle, éclairage, sécurité et confort connecté." },
-              { icon: <Factory />, title: "Électricité Industrielle", desc: "Automatisme, maintenance API, armoires électriques et optimisation énergétique." },
-              { icon: <Cpu />, title: "Ingénierie Électronique", desc: "Conception de PCB, prototypage et développement de systèmes embarqués." }
+              { icon: <Smartphone />, title: "Maison Intelligente", desc: "Contrôlez vos lumières, votre clim et votre sécurité depuis votre téléphone." },
+              { icon: <Factory />, title: "Services aux Entreprises", desc: "Nous installons et réparons les machines de votre usine ou boutique." },
+              { icon: <Cpu />, title: "Création d'Appareils", desc: "Nous fabriquons des cartes et des appareils électroniques sur mesure pour vos idées." }
             ].map((item, i) => (
               <div key={i} className="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
                 <div className="bg-white p-5 rounded-2xl text-blue-600 w-fit mb-8 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -930,11 +934,11 @@ function App() {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16 gap-8">
             <div className="max-w-xl">
-              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-4 sm:mb-6 tracking-tighter uppercase">Catalogue de Réalisations</h2>
-              <p className="text-slate-500 text-base sm:text-lg font-medium italic">Cliquez sur une solution pour explorer ses caractéristiques et avantages exclusifs.</p>
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-4 sm:mb-6 tracking-tighter uppercase">Nos Produits & Réalisations</h2>
+              <p className="text-slate-500 text-base sm:text-lg font-medium italic">Cliquez sur un produit pour voir comment il peut vous aider au quotidien.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {['Tous', 'Domotique', 'Industrie', 'Electronique'].map((filter) => (
+              {['Tous', 'Maison', 'Entreprise', 'Électronique'].map((filter) => (
                 <button 
                   key={filter} 
                   onClick={() => setActiveFilter(filter)}
@@ -959,19 +963,17 @@ function App() {
             ) : dbError ? (
               <div className="col-span-full py-16 px-8 text-center bg-red-50 rounded-[2rem] border border-red-100">
                 <X className="mx-auto text-red-500 mb-4" size={48} />
-                <h3 className="text-xl font-bold text-red-900 mb-2">Erreur de Connexion</h3>
-                <p className="text-red-700 mb-6 max-w-md mx-auto">{dbError}</p>
+                <h3 className="text-xl font-bold text-red-900 mb-2">Un petit problème technique</h3>
+                <p className="text-red-700 mb-6 max-w-md mx-auto">Nous n'arrivons pas à afficher les produits pour le moment. Cela arrive parfois quand la connexion à notre base de données est coupée.</p>
                 <div className="bg-white p-4 rounded-xl text-left text-xs font-mono text-slate-600 mb-6 overflow-x-auto">
-                  <p className="font-bold mb-1">Solution :</p>
-                  <p>1. Vérifiez que DATABASE_URL est bien configurée sur Render.</p>
-                  <p>2. Utilisez le port 6543 (Transaction Pooler) de Supabase.</p>
-                  <p>3. Vérifiez votre mot de passe dans l'URL.</p>
+                  <p className="font-bold mb-1">Note pour l'administrateur :</p>
+                  <p>{dbError}</p>
                 </div>
                 <button 
                   onClick={fetchData}
                   className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition"
                 >
-                  Réessayer la connexion
+                  Essayer de reconnecter
                 </button>
               </div>
             ) : (products || []).filter(p => activeFilter === 'Tous' || p.type.toLowerCase() === activeFilter.toLowerCase()).length > 0 ? (
